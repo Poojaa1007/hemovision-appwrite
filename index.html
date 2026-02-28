@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HemoVision Login</title>
+  <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
+  <style>
+    body {
+      font-family: Arial;
+      background: linear-gradient(to right, #4facfe, #00f2fe);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      width: 320px;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 8px 0;
+    }
+    button {
+      padding: 10px 20px;
+      background: #4facfe;
+      border: none;
+      color: white;
+      cursor: pointer;
+      margin-top: 10px;
+      width: 100%;
+    }
+    button:hover {
+      background: #00c6ff;
+    }
+    .link {
+      color: blue;
+      cursor: pointer;
+      margin-top: 10px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2 id="title">Login</h2>
+  <input type="email" id="email" placeholder="Enter Email">
+  <input type="password" id="password" placeholder="Enter Password">
+  <button onclick="handleAction()">Submit</button>
+  <span class="link" onclick="toggleMode()">
+    Switch to Register
+  </span>
+  <button onclick="logout()" id="logoutBtn" style="display:none;">
+    Logout
+  </button>
+</div>
+<script>
+const { Client, Account, ID } = Appwrite;
+const client = new Client()
+  .setEndpoint("https://sgp.cloud.appwrite.io/v1")
+  .setProject("69a31d75002fd21d4fc5");
+const account = new Account(client);
+let isLogin = true;
+function toggleMode() {
+  isLogin = !isLogin;
+  document.getElementById("title").innerText = isLogin ? "Login" : "Register";
+  document.querySelector(".link").innerText = 
+    isLogin ? "Switch to Register" : "Switch to Login";
+}
+function handleAction() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  if (isLogin) {
+    account.createEmailPasswordSession(email, password)
+      .then(() => {
+        alert("Login Successful!");
+        document.getElementById("logoutBtn").style.display = "block";
+      })
+      .catch(error => alert(error.message));
+  } else {
+    account.create(ID.unique(), email, password)
+      .then(() => {
+        alert("Registration Successful!");
+        toggleMode();
+      })
+      .catch(error => alert(error.message));
+  }
+}
+function logout() {
+  account.deleteSession("current")
+    .then(() => {
+      alert("Logged out!");
+      document.getElementById("logoutBtn").style.display = "none";
+    });
+}
+</script>
+</body>
+</html>
